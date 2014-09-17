@@ -17,12 +17,29 @@ def binaryString (n):
 
     b = ""
     p = int (math.log (n,2))
-    for i in range (p,0,-1):
-        if n >= i:
+    for i in range (p,-1,-1):
+        if n >= 2**i:
             b = b + "1"
-            n - 2**i 
-        elif:
+            n = n - 2**i
+        else:
             b = b + "0"
     return b
             
             
+
+####def bla():
+##    i=9
+##    while i>=0:
+##        print(i)
+##        i=i-1
+##        
+
+        
+        
+        
+            
+        
+            
+
+    
+
