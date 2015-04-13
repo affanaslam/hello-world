@@ -506,9 +506,9 @@ def getFileNames():
     return (asmFname, vmFiles)
 
 def main():
-    #asmFname, vmFiles = getFileNames()
+    asmFname, vmFiles = getFileNames()
     #fibonacci_counter doesn't work and comments, remove comments
-    asmFname, vmFiles = ('FibonacciSeries.asm',['FibonacciSeries.vm'])
+##    asmFname, vmFiles = ('FibonacciSeries.asm',['FibonacciSeries.vm'])
     CW = CodeWriter(asmFname)
 
     push_pop = ['C_PUSH','C_POP']
