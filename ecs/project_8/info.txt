@@ -1,3 +1,20 @@
 Name: Syed Affan Aslam 
 Student ID: sa00310
 
+-- Remove Comments:
+
+4 functions are being used for removing the comments 
+
+- remove_comments() removes the comments '//' - using regular expressions - and leaves a blank space.
+
+- _split_str() splits the string in acc with '\n' and stores the list in 'ls' then it loops through the newly formed list and leaves the blank spaces ([' ']) instead of '\n'
+
+_ _tokens() makes the elements of list (list within a list) [' '] empty (they will be blank empty lists [[],[]] now
+
+_ in _final_tokens() finally, it appends the non-empty lists in fin [] and returns it
+
+_ the _basic_op(exp) is used for writeArithmetic - except for add,not,neg - assembly
+
+- _generate_label() generates a label with an increment counter - it is used for JUMPS: JNE,JLT etc.
+
+- _generate_jump_command() and _jmp generate jump commands, which are later called in writeArtihmetic()
