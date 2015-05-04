@@ -151,12 +151,14 @@ class CompilationEngine(object):
         '''
 
         self._outfile = open(outputFile+'.xml', 'w')
-        self.tok = inputFile
+        self.tok = JackTokenizer(inputFile)
         self.in_counter = 1
         
         self.key = {'IDENTIFIER':'identifier', 'STRING_CONST':'stringConstant', 'INT_CONST':'integerConstant', 'SYMBOL':'symbol', 'KEYWORD':'keyword'}
         self.sym = {'<':'&lt;','>':'&gt;','"':'&quot;','&':'&amp;'}
         self.exp_sym = ['+','=','-','*','/','&','|','~','<','>']
+        self.compileClass()
+        self.close_outfile()
 
 
         
@@ -614,13 +616,14 @@ def main():
     through the command line when invoking this program.
     '''
     jackFiles = getFileNames()
-    vmFiles = [s.replace('.jack','.vm') for s in jackFiles]
+    xmlFiles = [s.replace('.jack','.xml') for s in jackFiles]
+
+    for f in range(len(jackFiles)):
+        comp = CompilationEngine(jackFiles[f], xmlFiles[f])
+        
 
         
-    
-
-
-
+        
     
     # jackFiles contains the names of the Jack files to be compiled.
     # vmFiles contains the names of the corresponding vm files to be written to.
