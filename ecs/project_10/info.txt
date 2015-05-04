@@ -1,0 +1,33 @@
+Syed Affan Aslam 
+
+sa00310
+
+
+Custom Functions:
+
+1) write_tok(self, val = None): the function doesn't require an input; however this functionality is used to validate (using exception() function) the entered argument using
+token() (this function token advance()s and return the token and token_type. In doing so, I am trying to follow a modular approach. 
+
+2)exception(self,string): takes list as an input; the function loops through the input list and check whether it is equal to tok or tok_type; if the condition is not fulfilled;generates exception.
+
+
+3) remove_comments(self,string) follows the given pattern and removes multiline as well as single line comments 
+
+4) tokens():
+
+keywords: class|method|function|constructor|int|boolean|char|void|var|static|field|let|do|if|else|while|return|true|false|null|this|
+
+symbols: [\\{\\}\\(\\)\\[\\]\\.\\,\\;\\+\\-\\*\\/\\&\\|\\<\\>\\=\\~] 
+
+Integer: \\d+
+
+string constant: "[^"\\n]*"
+
+Identifier: [\w\-]+
+
+using these patterns in re.findall(pattern, string) a list is generated 
+
+
+ 
+
+
