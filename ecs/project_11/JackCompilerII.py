@@ -1,6 +1,153 @@
 import sys,re,os
 from pathlib import Path
 
+
+class VMWriter:
+
+
+
+  def __init__(self, output_file):
+    self.output = output_file
+    self.vmfile = open(output_file, 'w')
+    
+
+  def writePush(self, segment, index):
+      seg = '' 
+      if segment == 'CONST': seg = 'constant'
+      elif segment == 'ARG' : seg = 'argument'
+      else: seg = segment.lower()
+      self.write_out('pop '+ seg + ' ' + str(index)) 
+
+
+  def writePop(self, segment, index):
+      seg = '' 
+      if segment == 'CONST': seg = 'constant'
+      elif segment == 'ARG' : seg = 'argument'
+      else: seg = segment.lower()
+      self.write_out('pop '+ seg + ' ' + str(index))
+
+
+  def writeArithmetic(self, command):
+    self.write_out(command.lower())
+
+  def writeLabel(self, label):
+    self.write_out('label ' + label)
+
+
+  def writeGoto(self, label):
+    self.write_out('goto ' + label)
+
+
+  def writeIf(self, label):
+    self.write_out('if-goto ' + label)
+
+  def writeCall(self, name, nArgs):
+    self.write_out('call ' + name + ' '+ str(nArgs) )
+
+  def writeFunction(self, name, nLocals):
+    self.write_out('function ' + name + ' ' + str(nLocals))
+
+  def writeReturn(self):
+    self.write_out('return')
+
+  def close(self):
+    self.vmfile.close()
+
+
+  def write_out(self, string):
+    self.vmfile.write(string + '\n')
+
+
+
+class SymbolTable:
+
+  def __init__(self):
+      
+    self.ARG = 0
+    self.FIELD = 0
+    self.STATIC = 0
+    self.VAR = 0
+    self.varnumbers = {'ARG':0,'STATIC':0,'VAR':0, 'FIELD':0}
+
+    self.subroutine = {}
+    self.field = {}
+    self.static = {}
+
+  def startSubroutine(self):
+    self.subroutine = {}
+
+
+  def Define(self, name, type, kind):
+    number = None
+
+    if kind in ('ARG', 'VAR'):
+      if kind == 'ARG':
+        number = self.ARG
+        self.ARG =  self.ARG + 1
+      elif kind == 'VAR':
+        number = self.VAR
+        self.VAR = self.VAR + 1
+
+      self.subroutine[name] = (type, kind, number)
+    
+    
+  
+
+    elif kind in('STATIC','FIELD'):
+      if kind == 'STATIC':
+        number = self.STATIC
+        self.STATIC = self.STATIC + 1
+        self.static[name] = (type, kind, number)
+      elif kind == 'FIELD':
+        number = self.FIELD
+        self.FIELD = self.FIELD +  1
+        self.field[name] = (type, kind, number)
+
+    self.varnumbers['ARG'] = self.ARG
+    self.varnumbers['VAR'] = self.VAR
+    self.varnumbers['STATIC'] = self.STATIC
+    self.varnumbers['FIELD'] = self.FIELD
+
+
+  def varCount(self, kind):
+    print(self.varnumbers)
+    
+    return self.varnumbers[kind]
+
+  def typeOf(self, name):
+    sub = self.subroutine.keys()
+    field = self.field.keys()
+    static = self.static.keys()
+    if val in sub: return self.subroutine[val][0]
+    elif val in self.field.keys(): return self.field[val][0]
+    elif val in self.static.keys(): return self.static[val][0]
+    else: return 'Empty'
+    
+
+  def kindOf(self, name):
+  
+    sub = self.subroutine.keys()
+    field = self.field.keys()
+    static = self.static.keys()
+    if val in sub: return self.subroutine[val][0]
+    elif val in self.field.keys(): return self.field[val][0]
+    elif val in self.static.keys(): return self.static[val][0]
+    else: return 'Empty'
+
+
+
+  def indexOf(self, name):
+    
+    sub = self.subroutine.keys()
+    field = self.field.keys()
+    static = self.static.keys()
+    if val in sub: return self.subroutine[val][0]
+    elif val in self.field.keys(): return self.field[val][0]
+    elif val in self.static.keys(): return self.static[val][0]
+    else: return 'Empty'
+
+
+
 class JackTokenizer(object):
     '''Removes all comments and white space from the input stream and
     breaks it into Jack-language tokens, as specified by the Jack
@@ -151,44 +298,61 @@ class CompilationEngine(object):
         self.symbol = SymbolTable()
         self.w_counter = 0
         self.i_counter = 0
+        self.buffer = []
+        self.nArgs = 0
         self.key = {'IDENTIFIER':'identifier', 'STRING_CONST':'stringConstant', 'INT_CONST':'integerConstant', 'SYMBOL':'symbol', 'KEYWORD':'keyword'}
         self.sym = {'<':'&lt;','>':'&gt;','"':'&quot;','&':'&amp;'}
         self.exp_sym = ['+','=','-','*','/','&','|','~','<','>']
+
+    
+        
     
 
         
     
     def compileClass(self):
 
+      print('compileClass')
+
       self.write_tok()
+      print(self.write_tok())
       self.name_class = self.write_tok()
       self.write_tok()
+      print('beforedo')
       while self.do_compileClassVarDec():
+        print('beforevar')
         self.compileClassVarDec()
-      while self.do_compileClassVarDec():
-        self.compileClassVarDec()
+      while self.do_compileSubroutine():
+        self.compileSubroutine()
       self.vmwriter.close()
         
 
     def do_compileClassVarDec(self):
+
+        print('do_compileClassVarDec')
         
         return self.upcoming_tok()[0] in ('static','field')
 
     def do_compileSubroutine(self):
+
+        print('do_compileSubroutine')
         return self.upcoming_tok()[0] in ('function','constructor','method')
     
     def compileClassVarDec(self):
+
+      print('compileClassVarDec')
 
       kind = self.write_tok().upper() #handle this in the SymbolTalbe()
       type = self.write_tok()
       name = self.write_tok()
 
-      self.symbol.define(name, type , kind)
+      self.symbol.Define(name, type , kind)
 
       while self.upcoming_tok()[0] != ';':
         self.write_tok()
         name = self.write_tok()
-        self.symbol.define(name,type , kind)
+        
+        self.symbol.Define(name, type , kind)
 
       self.write_tok()
   
@@ -209,7 +373,7 @@ class CompilationEngine(object):
       elif kind == 'method':
         self.vmwriter.writePush('ARG', 0)
         self.vmwriter.writePop('POINTER', 0)
-        self.symbol.define('instance', self.name_class, arg_kind)
+        self.symbol.Define('instance', self.name_class, arg_kind)
       self.write_tok()
       self.compileParameterList()
       self.write_tok()
@@ -230,14 +394,14 @@ class CompilationEngine(object):
         kind = 'ARG'
         type = self.write_tok()
         name = self.write_tok()
-        self.symbol.define(name, type, kind)
+        self.symbol.Define(name, type, kind)
 
       while upcoming_tok()[0] != ')':
         kind = 'VAR'
         self.write_tok()
         type = self.write_tok()
         name = self.write_tok()
-        self.symbol.define(name, type, kind)
+        self.symbol.Define(name, type, kind)
       
  
 
@@ -248,12 +412,12 @@ class CompilationEngine(object):
       type = self.write_tok()
       name = self.write_tok()
 
-      self.symbol.define(name, type, kind)
+      self.symbol.Define(name, type, kind)
 
       while upcoming_tok()[0] != ';':
         self.write_tok()
         name = self.write_tok()
-        self.symbol.define(name, type, kind)
+        self.symbol.Define(name, type, kind)
       self.write_tok()        
 
     def compileStatements(self):
@@ -276,29 +440,107 @@ class CompilationEngine(object):
         
 
     def compileDo(self):
-        '''CE.compileDo() -> None
+      
+      
+      
+      
+      ide = self.write_tok() 
+      fName = ide
+      nArgs = 0
 
-        Compiles a do statement.
-        '''
-   
-
+      if upcoming_tok()[0] == '.':
         
+       
+        self.write_tok()                    
+        subName = self.write_tok() 
+
+        type = self.symbol.typeOf(ide)
+
+        if type != 'Empty':
+        
+          i_kind = self.symbol.kindOf(ide)
+          i_index = self.symbol.indexOf(ide)
+
+          self.vmwriter.writePush(tab[i_kind], i_index)
+          functionName = type + '.' + subName
+          nArgs = nArgs + 1
+        else: 
+          c_name = ide
+          functionName = c_name + '.' + subName
+
+      elif upcoming_tok()[0] == ')':
+        subName = ide
+        fuctionName = c_name + '.' + subName 
+        nArgs = nArgs + 1
+
+        self.vmwriter.writePush('POINTER', 0)
+
+      self.write_tok()
+      nArgs = nArgs + self.compileExpressionList()  
+      self.write_tok()              
+
+      self.vmwriter.writeCall(functionName, nArgs)       
+    
+
+      self.vmwriter.writePop('TEMP', 0)
+      self.write_tok()
+         
 
     def compileLet(self):
-        '''CE.compileLet() -> None
+      
+      name = self.write_tok()
+      kind = self.symbol.indexOf(name)
+      index = self.symbol.indexOf(name)
+      tab = {'ARG':'ARG', 'VAR':'LOCAL', 'FIELD': 'FIELD', 'THIS':'THIS'}
+      vkind = tab[kind]
 
-        Compiles a let statement.
+      if upcoming_tok()[0]: 
+        self.write_tok() 
+        self.compileExpression() 
+        self.write_tok()
+        self.vmwriter.writePush(vkind, index)
+        self.vmwriter.writeArithmetic('ADD')
+        self.vm_writer.writePop('TEMP', 0)
+        self.write_tok() 
+        self.compileExpression()      
+        self.write_tok() 
+        self.vmwriter.writePush('TEMP', 0)
+        self.vmwriter.writePop('POINTER', 1)
+        self.vmwriter.writePop('THAT', 0)
+      else:
+        self.write_tok()
+        self.compileExpression()
+        self.write_tok()
+        self.vm_writer.writePop(vkind, var_index)
 
-        
-        '''
 
 
 
     def compileWhile(self):
-        '''CE.compileWhile() -> None
 
-        Compiles a while statement.
-        '''
+      whileLabel = 'WHILE' + self.w_counter + '\n'
+      whileEnd = 'WHILE_END' + self.w_counter + '\n'
+      self.w_counter = self.w_counter + 1
+
+      self.write_tok()
+      self.compileExpression()   
+      self.vmwriter.writeArithmetic('NOT')
+      self.write_tok()
+      self.write_tok()
+
+      
+      self.vmwriter.writeIf(whileEnd)
+
+      self.compileStatements() 
+      self.vmwriter.writeGoto(whileLabel)
+      
+      self.vmwriter.writeLabel(whileEnd)
+      
+      
+      self.write_tok() 
+
+      
+
 
     
     def compileReturn(self):
@@ -367,18 +609,110 @@ class CompilationEngine(object):
         
 
     def compileTerm(self):
+      
+      if self.upcoming_tok()[0] in ['~','-']:
+        operator = self.write_tok()
+        tab = {'ARG':'ARG', 'VAR':'LOCAL', 'FIELD': 'FIELD', 'THIS':'THIS'}
+        self.compileTerm
+        if unary_op == '~': self.vm_writer.writeArithmetic('NOT')
+        if unary_op == '-': self.vm_writer.writeArithmetic('NEG')
+      elif self.upcoming_tok()[0] == ')':
+        self.write_tok()        
+        self.compileExpression
+        self.write_tok()    
+      elif self.upcoming_tok()[1] == 'INT_CONST':    
+        self.vmwriter.writePush('CONST', self.write_tok())
+      elif self.upcoming_tok()[1] == 'STRING_CONST':
+        st = self.write_tok()
+        self.vmwriter.writePush('CONST', len(string))
+        self.vmwriter.writeCall('String.new', 1)
+        for i in st:
+          self.vmwriter.writePush('CONST', ord(char))
+          self.vmwriter.writeCall('String.appendChar',2)
+      
+      elif self.upcoming_tok()[1] == 'KEYWORD':
+        kw = self.write_tok()
+        if kw == 'this': self.vmwriter.writePush('POINTER', 0)
+        else:
+          self.vmwriter.writePush('CONST', 0)
+          if kw == 'true':
+            self.vmwriter.writeArithmetic('NOT')           
+      else: 
+        if self.to_check_array():
+          aVar = self.write_tok() 
+          self.write_tok()        
+          self.compileExpression() 
+          self.write_tok()          
+          aKind = self.symbol.kindOf(aVar)
+          index = self.symbol.indexOf(aVar)
+          self.vmwriter.writePush(self.tab[aKind], index)
 
-      pass
+          self.vmwriter.writeArithmetic('ADD')
+          self.vmwriter.writePop('POINTER', 1)
+          self.vmwriter.writePush('THAT', 0)
 
+        elif self.to_check_sub():
 
+          ide = self.write_tok() 
+          fName = ide
+          nArgs = 0
 
+          if upcoming_tok()[0] == '.':     
+            self.write_tok()                    
+            subName = self.write_tok() 
+            type = self.symbol.typeOf(ide)
 
-         
+            if type != 'Empty':       
+              i_kind = self.symbol.kindOf(ide)
+              i_index = self.symbol.indexOf(ide)
+              self.vmwriter.writePush(tab[i_kind], i_index)
+              functionName = type + '.' + subName
+              nArgs = nArgs + 1
+            else: 
+              c_name = ide
+              functionName = c_name + '.' + subName
+
+          elif upcoming_tok()[0] == ')':
+            subName = ide
+            fuctionName = c_name + '.' + subName 
+            nArgs = nArgs + 1
+
+            self.vmwriter.writePush('POINTER', 0)
+
+          self.write_tok()
+          nArgs = nArgs + self.compileExpressionList()  
+          self.write_tok()              
+
+          self.vmwriter.writeCall(functionName, nArgs)
+          
+            
+        else:
+          var = self.write_tok()
+          kind  = tab[self.symbol.kindOf(var)]
+          index = self.symbol.indexOf(var)
+          self.vmwriter.writePush(kind, index)
+
+           
         
 
     def compileExpressionList(self):
 
-      pass
+      if self.upcoming_tok()[0] == ')':
+        self.nArgs = self.nArgs + 1
+        self.compileExpression
+
+      while self.upcoming_tok()[0] == ')':
+        self.nArgs = self.nArgs + 1
+        self.write_tok()
+        self.compileExpression()
+
+
+      return nArgs 
+      
+      
+      
+
+      
 
 
 
@@ -395,192 +729,51 @@ class CompilationEngine(object):
         elif tok_type == 'SYMBOL': return (self.tok.symbol(), self.key[tok_type] )
 
 
-    def exception(self,string):
+    def to_check_sub(self):
+      sub = False
+      tok = self.write_tok()
+      sub = upcoming_token()[0] in ['.','(']
+      return sub
 
-        
-        t = ''
-        tok, tok_type = self.upcoming_tok()
-##        print(tok, tok_type)
+    def to_check_array(self):
 
-        try:
-            
-
-            for i in string:        
-                if tok != i or tok_type != i:
-                    t = t + i
-
-            return ('Unexpected token:' + tok + ' ' + tok_type + ',Expected:' + t)
-
-        except:
-
-            print (Exception)
-            
-        
+      arr = False
+      tok = self.write_tok()
+      arr = upcoming_tok()[0] in ['.','(']
+      return arr
 
 
-
+ 
     def upcoming_tok(self):
-
+ 
         try:
-            
-    
+             
+     
             return self.tok.tok[0], self.tok.tokenType(self.tok.tok[0])
-
+ 
         except:
-
+ 
             return '0'
-
-        
-    
-
-    def write_tok(self, val= None):
-        if val != None: self.exception(val)
+ 
+         
+     
+ 
+    def write_tok(self):
         tok, tok_type = self.token()
-##        if tok in ['<','>','"','&']: tok = self.sym[tok]
-        return tok    
-
-    
-
-class VMWriter:
+        return tok
+        
+         
+ 
 
 
-
-  def __init__(self, output_file):
-    self.output = output_file
-
-  def writePush(self, segment, index):
-      seg = '' 
-      if segment == 'CONST': seg = 'constant'
-      elif segment == 'ARG' : seg = 'argument'
-      else: seg = segment.lower()
-      self.write_out('pop '+ seg + ' ' + str(index)) 
-
-
-  def writePop(self, segment, index):
-      seg = '' 
-      if segment == 'CONST': seg = 'constant'
-      elif segment == 'ARG' : seg = 'argument'
-      else: seg = segment.lower()
-      self.write_out('pop '+ seg + ' ' + str(index))
+    def main():
+      '''Compiles the Jack program in the directory whose name is supplied
+      through the command line when invoking this program.
+      '''
+      jackFiles = getFileNames()
+      vmFiles = [s.replace('.jack','.vm') for s in jackFiles]
+   
+##      for f in range(len(jackFiles)):
+##          comp = CompilationEngine(jackFiles[f], vmFiles[f])    
 
 
-  def writeArithmetic(self, command):
-    self.write_out(command.lower())
-
-  def writeLabel(self, label):
-    self.write_out('label ' + label)
-
-
-  def writeGoto(self, label):
-    self.write_out('goto ' + label)
-
-
-  def writeIf(self, label):
-    self.write_out('if-goto ' + label)
-
-  def writeCall(self, name, nArgs):
-    self.write_out('call ' + name + ' '+ str(nArgs) )
-
-  def writeFunction(self, name, nLocals):
-    self.write_out('function ' + name + ' ' + str(nLocals))
-
-  def writeReturn(self):
-    self.write_out('return')
-
-  def close(self):
-    self.output.close()
-
-
-  def write_out(self, string):
-    self.output.write(string + '\n')
-
-
-
-class SymbolTable:
-
-  def __init__(self):
-      
-    self.ARG = 0
-    self.FIELD = 0
-    self.STATIC = 0
-    self.VAR = 0
-    self.varnumbers = {'ARG':0,'STATIC':0,'VAR':0, 'FIELD':0}
-
-    self.subroutine = {}
-    self.field = {}
-    self.static = {}
-
-  def startSubroutine(self):
-    self.subroutine = {}
-
-
-  def define(self, name, type, kind):
-    number = None
-
-    if kind in ('ARG', 'VAR'):
-      if kind == 'ARG':
-        number = self.ARG
-        self.ARG =  self.ARG + 1
-      elif kind == 'VAR':
-        number = self.VAR
-        self.VAR = self.VAR + 1
-
-      self.subroutine[name] = (type, kind, number)
-    
-    
-  
-
-    elif kind in('STATIC','FIELD'):
-      if kind == 'STATIC':
-        number = self.STATIC
-        self.STATIC = self.STATIC + 1
-        self.static[name] = (type, kind, number)
-      elif kind == 'FIELD':
-        number = self.FIELD
-        self.FIELD = self.FIELD +  1
-        self.field[name] = (type, kind, number)
-
-    self.varnumbers['ARG'] = self.ARG
-    self.varnumbers['VAR'] = self.VAR
-    self.varnumbers['STATIC'] = self.STATIC
-    self.varnumbers['FIELD'] = self.FIELD
-
-
-  def varCount(self, kind):
-    print(self.varnumbers)
-    
-    return self.varnumbers[kind]
-
-  def typeOf(self, name):
-    if name in self.subroutine.keys():
-      return self.subroutine[name][0]
-    elif name in self.field.keys():
-      return self.field[name][0]
-    elif name in self.static.keys():
-      return self.static[name][0]
-    else:
-      return 'NONE'
-    
-
-  def kindOf(self, name):
-    print(self.subroutine[name][1])
-    if name in self.subroutine.keys():
-      return self.subroutine[name][1]
-    elif name in self.field.keys():
-      return self.field[name][1]
-    elif name in self.static.keys():
-      return self.static[name][1]
-    else:
-      return 'NONE'
-
-
-
-  def indexOf(self, name):
-    if name in self.subroutine.keys():
-      return self.subroutine[name][2]
-    elif name in self.field.keys():
-      return self.field[name][2]
-    elif name in self.static.keys():
-      return self.static[name][2]
-    else:
-      return'NONE'
