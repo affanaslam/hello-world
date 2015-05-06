@@ -2,7 +2,7 @@ import sys,re,os
 from pathlib import Path
 
 
-class VMWriter:
+class VMWriter(object):
 
 
 
@@ -12,6 +12,7 @@ class VMWriter:
     
 
   def writePush(self, segment, index):
+    #write Push is used for vm writing push command 
       seg = '' 
       if segment == 'CONST': seg = 'constant'
       elif segment == 'ARG' : seg = 'argument'
@@ -20,6 +21,7 @@ class VMWriter:
 
 
   def writePop(self, segment, index):
+    #write Push is used for vm writing pop command
       seg = '' 
       if segment == 'CONST': seg = 'constant'
       elif segment == 'ARG' : seg = 'argument'
@@ -28,6 +30,7 @@ class VMWriter:
 
 
   def writeArithmetic(self, command):
+    #write Arithmetic 
     self.write_out(command.lower())
 
   def writeLabel(self, label):
@@ -290,11 +293,11 @@ class CompilationEngine(object):
     '''
 
 
-    def __init__(self, vmwriter ,tokenizer):
+    def __init__(self, inputFile ,OutputFile):
 
       
-        self.tok = tokenizer
-        self.vmwriter = vmwriter
+        self.tok = JackTokenizer(inputFile)
+        self.vmwriter = VMWriter(OutputFile)
         self.symbol = SymbolTable()
         self.w_counter = 0
         self.i_counter = 0
@@ -303,6 +306,9 @@ class CompilationEngine(object):
         self.key = {'IDENTIFIER':'identifier', 'STRING_CONST':'stringConstant', 'INT_CONST':'integerConstant', 'SYMBOL':'symbol', 'KEYWORD':'keyword'}
         self.sym = {'<':'&lt;','>':'&gt;','"':'&quot;','&':'&amp;'}
         self.exp_sym = ['+','=','-','*','/','&','|','~','<','>']
+
+##        self.compileClass()
+      
 
     
         
