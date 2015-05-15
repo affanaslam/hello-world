@@ -128,20 +128,19 @@ class String {
     method void set_int_rec(int number) { // 10
 
 
-        var int q;
-        var int mod;
+        var int quotient, mod;
         var char c;
 
         
-        let q = number / 10; // 10/10 = 1
-        let mod = number - (q*10); // 10 - (1*10) = 0
-        let c = mod + 48;// 0 + 48; c=48
+        let quotient = number / 10; // 10/10 = 1
+        let mod = number - (quotient*10); // 10 - (1*10) = 0
+        let c = mod + 48;// 
         
         if( number < 10 ) { 
             do appendChar(c);
         }
         else {
-            do set_int_rec(q);
+            do set_int_rec(quotient);
             do appendChar(c);
         }
         return;
