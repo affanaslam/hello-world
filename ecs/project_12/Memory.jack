@@ -1,0 +1,99 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * Memory operations library.
+ */ 
+class Memory {
+
+    static Array memory;
+    static int free;
+    static int max_space;
+
+    /** Initializes memory parameters. */
+     function void init() {
+        let memory = 0;
+        let free = 2048;
+        let max_space = 16383-2048;
+        let memory[free] = max_space-2; //length of memory segment; memory[2048] == 14333
+        let memory[free+1] = 0; // null pointer; length of memory segment; memory[2049] == 0
+        return;
+    }
+
+    /** Returns the value of the main memory at the given address. */
+    function int peek(int address) {
+
+        return memory[address];
+
+
+    }
+
+    /** Sets the value of the main memory at this address
+     *  to the given value. */
+    function void poke(int address, int value) {
+
+        let memory[address] = value;
+        return;
+    }
+
+  
+    /** finds and allocates from the heap a memory block of the 
+     *  specified size and returns a reference to its base address. */
+    function int alloc(int size) {
+   
+        var int address;
+        var int length;
+        var int second;
+        var int s_address;
+        var int m_space;
+        var int pointer;
+
+
+        if (size < 0){
+            do Sys.error(5);
+        }
+        
+        let address = free; // free is 2048; second time memory.
+        let s_address = 0; //s_address =0 
+        let m_space = 14335; // 16383-2048; heap starts from 2048 and ends at 16383
+
+        while(true){
+            let length = Memory.peek(address); //returns the value of the main memory at this address , memory[2048] = 14333; length = 14333; second time if size = 4; memory[2048]= 14328
+            let second = Memory.peek(address + 1); //second memory; memory[2049] = 0; second = 0
+            if ( (length > size) & (m_space > (length-size)) ){ //suppose size is 4; if (14333> 4) & (14335 > 14333 - 4)
+                let m_space = length; // m_space = 14333
+                let s_address = address; //s_address = 2048
+            }
+            if (second = 0){ //if memmory[2049] = 0
+                
+                let length = m_space - (size+1); //length = 14333; memory[2048] = 14333; length = 14333 - (4 + 1) = 14328
+                do Memory.poke(s_address, length);   //new length of memory block is old length - size of block we are taking ; memory[2048] = 14328
+                let pointer = s_address + 2 + length; // pointer = 2048 + 2 + 14328 = 16378
+                do Memory.poke(pointer, size+1); // memory[16378] = 5
+                return pointer; //pointer = 16378
+            }
+            let address = second;  // address = 0 
+        }           
+        return pointer;     
+    }
+
+    /** De-allocates the given object and frees its space. */
+    function void deAlloc(int object) {
+        var int address;
+        var int second;
+
+        let address = free; //address = 2048
+        let second = Memory.peek(address+1); // second =0; memory[2049] = 0
+        while (~(second=0)){ // if second != 0
+            let address = second; //address = 0
+            let second = Memory.peek(address+1);// second = memory[1] 
+        }
+        do Memory.poke(address+1,object); // memory[1] = object
+        do Memory.poke(object,Memory.peek(object)-2);// memory[object] = memory[object] - 2
+        do Memory.poke(object+1,0); // memory[object+1] = 0  
+        return; 
+    }
+   
+}
