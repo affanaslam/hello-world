@@ -51,9 +51,7 @@ class Memory {
         var int pointer;
 
 
-        if (size < 0){
-            do Sys.error(5);
-        }
+   \
         
         let address = free; // free is 2048; second time memory.
         let s_address = 0; //s_address =0 
