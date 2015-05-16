@@ -48,20 +48,21 @@ class Keyboard {
      * the key to the screen, and returns the value of the pressed key.
      */
     function char readChar() {
-        var char input,value;
+        var char input;
+        var char c_val;
 
         let input = 0;
         while (input = 0){   
             do Sys.wait(1);     
             let input = Keyboard.keyPressed();
         }
-        let value = input;
-        while (input = value){
+        let c_val = input;
+        while (input = c_val){
             do Sys.wait(1);
             let input = Keyboard.keyPressed();
         }
-        do Output.printChar(value);
-        return value;
+        do Output.printChar(c_val);
+        return c_val;
     }
 
     /**								
@@ -77,7 +78,7 @@ class Keyboard {
         let input = Keyboard.readChar();
         while (~(input = newLine)){ 
 
-            if (~( (input > 129) & (input < 153) ) ){
+            if (~( (input < 153) & (input > 129) ) ){
                 do s.appendChar(input);
             }
             let input = Keyboard.readChar();
