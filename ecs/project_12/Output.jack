@@ -29,6 +29,8 @@ class Output {
         let char_mask = Array.new(2);//array of length 2 
         let char_mask[0] = 255;
         let char_mask[1] = -1 & 255;
+
+
         do Output.initMap();
         return;
 
@@ -207,9 +209,9 @@ class Output {
         // Get the character bitmap
         let map = Output.getMap(c); //map [38,45,25,0,0,0,0,0,0,0,0] 
         let co = c_column_y*32*11;
-        let r = c_row_x/2;
+        let r = c_row_x/2; //c_row * (8/16)
         let add = (co) + (r);
-        let mask = c_row_x & 1;// anything anded with 1 ,is that thing; a and 1 = a
+        let mask = c_row_x & 1;
         
     
         let a = 0;
