@@ -80,7 +80,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,28,51,51,51,63,51,51,51,51,0,0);         // A ** TO BE FILLED ** filled
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -183,12 +183,54 @@ class Output {
         return charMaps[c];
     }
 
+
+
     /** Moves the cursor to the j’th column of the i’th row,
      *  and erases the character that was there. */
     function void moveCursor(int i, int j) {
 
+                                                 
         let c_row_x = j;
         let c_column_y = i;
+        return;
+    }
+
+    function void printChar(char c) {
+         //charMaps[126] = map [38,45,25,0,0,0,0,0,0,0,0] 
+        var int add, mask, bitmap, a, co,r; // screen's row address 
+        var int mask; //  let charMasks = Array.new(2);
+                         //let charMasks[0] = 255;
+                       //let charMasks[1] = -1 & 255; 
+                            //                       
+        var Array map;
+        
+        // Get the character bitmap
+        let map = Output.getMap(c); //map [38,45,25,0,0,0,0,0,0,0,0] 
+        let co = c_column_y*32*11;
+        let r = c_row_x/2;
+        let add = (co) + (r);
+        let mask = c_row_x & 1;// anything anded with 1 ,is that thing; a and 1 = a
+        
+        // Print the character
+        let a = 0;
+        while( a < 11 ) { //loop through all bitmap values 
+            let bitmap = map[a];
+            if( mask = 1 ) {
+                let bitmap = bitmap * 256;
+            }
+            let screen[add] = screen[add] & char_mask[mask] | bitmap; //clr by ANDing; fill  by ORRing 
+            let add = add + 32;
+            let a = a + 1;
+        }
+        
+        // Advance the cursor
+        if( c_row_x = 63 ) {
+            do Output.println();
+        }
+        else {
+            let c_row_x = c_row_x + 1;
+        }
+        
         return;
     }
 
