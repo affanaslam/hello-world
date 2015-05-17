@@ -211,7 +211,7 @@ class Output {
         let add = (co) + (r);
         let mask = c_row_x & 1;// anything anded with 1 ,is that thing; a and 1 = a
         
-        // Print the character
+    
         let a = 0;
         while( a < 11 ) { //loop through all bitmap values 
             let bitmap = map[a];
@@ -223,7 +223,7 @@ class Output {
             let a = a + 1;
         }
         
-        // Advance the cursor
+     
         if( c_row_x = 63 ) {
             do Output.println();
         }
