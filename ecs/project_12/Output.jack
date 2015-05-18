@@ -208,7 +208,7 @@ class Output {
         
         // Get the character bitmap
         let map = Output.getMap(c); //map [38,45,25,0,0,0,0,0,0,0,0] 
-        let co = c_column_y*32*11;
+        let co = c_column_y*32*11; // using Screen[r*32 + c/16]
         let r = c_row_x/2; //c_row * (8/16)
         let add = (co) + (r);
         let mask = c_row_x & 1;
