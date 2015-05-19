@@ -220,7 +220,7 @@ class Output {
             if( mask = 1 ) {
                 let bitmap = bitmap * 256;
             }
-            let screen[add] = screen[add] & char_mask[mask] | bitmap; //clr by ANDing; fill  by ORRing 
+            let screen[add] = screen[add] & char_mask[mask] | bitmap; // orring by bitmap (bit-wise)
             let add = add + 32;
             let a = a + 1;
         }
