@@ -226,13 +226,19 @@ class Output {
         }
         
      
-        if( c_row_x = 63 ) {
+        do Output.con_inc();
+        
+        return;
+    }
+
+    function void con_inc(){
+
+          if( c_row_x = 63 ) {
             do Output.println();
         }
         else {
             let c_row_x = c_row_x + 1;
         }
-        
         return;
     }
 
