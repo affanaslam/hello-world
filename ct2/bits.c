@@ -4,6 +4,7 @@
  * 
  * <Please put your name and userid here>
  Syed Affan Aslam
+ sa00310
  * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
