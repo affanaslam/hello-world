@@ -110,13 +110,3 @@ int trim(string fileName){
 
 
 
-
-
-
-int main (){
-
-   trim("logo.pgm");
-   return 0;
-
-}
-

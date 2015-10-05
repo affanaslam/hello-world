@@ -178,13 +178,3 @@ cout << c << " " << j;
  return 0;
 }
 
-
-
-int main (){
-
-
-
-   caeserDecipher("enc.txt", "sd.txt", 3);
-   return 0;
-
-} 

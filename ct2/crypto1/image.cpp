@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include "image.h"
+#include <cmath>
 
 
 using namespace std;
@@ -145,7 +146,7 @@ int doubleUp(string fileName){
  
  
 
-    ifstream Test ("logo.pgm");
+    ifstream Test ("log.pgm");
     ofstream out ("double.pgm");
 
     getline(Test, line1);
@@ -164,7 +165,7 @@ int doubleUp(string fileName){
     cout << gray;  
 
     string word[h][w];
-    string array[2*h][2*h];
+    string array[2*h][2*w];
     
 
     if (!Test)
@@ -176,61 +177,70 @@ int doubleUp(string fileName){
     int x=0,y=0;
     while( Test>>testline )
     {
+        
         word[y][x]=testline;
-        x++;
-        if (testline=="")
-        y++;
+        x = (x+1);
+        if(x>=w)
+{
+    y = (y+1)%h;
+    x = x % w;
+}
+     
     }
 
       out << line1 <<endl; 
       out << line2 <<endl;
-      out << w*2 << " " << h*2 <<endl;
+      out << ceil(w*1.5) << " " << ceil(h*1.5) <<endl;
       out << gray <<endl;
     //output whole array with array position numbers for each entry
-    
- 
+   
+
+   for (int a=0;a<h;a++)
+        for (int b=0;b<w;b++)
+        cout << word[a][b] << " " ;
    
        for (int a=0;a<h;a++){
         for (int b=0;b<w;b++){
 
-            array[a+2][b+2]=word[a][b];
 
 
+           if ((a%2 == 0) && (b%2==0)) {
+
+            array[a*2][b*2]=word[a][b];   
+            array[a*2+1][b*2]=word[a][b];
+            array[a*2][b*2+1]=word[a][b];
+            array[a*2+1][b*2+1]=word[a][b];
+        }
+
+           else if  ((a%2 == 0) && (b%2!=0)) {
+
+            array[a*2][b*2]=word[a][b]; 
+            array[a*2+1][b*2]=word[a][b]; }
+
+
+            else if  ((a%2 != 0) && (b%2==0)) {
+            array[a*2][b*2]=word[a][b];
+            array[a*2][b*2+1]=word[a][b]; 
+
+            }
+
+            else if  ((a%2 != 0) && (b%2!=0)) {
+            array[a*2][b*2]=word[a][b];
+
+            }
         }
        } 
-
-
-       for (int a=0;a<2*h;a=a+2){
-        for (int b=0;b<2*w;b=a+2){
-
-            array[a+1][b+1] = array[a][b];
-
-
-        }
-       } 
-
-      /* for (int a=1;a<2*h;a=a+2){
-        for (int b=1;b<2*w;b=b+2){
-
-            array[a][b]=word[a][b];
-
-        }
-       }*/
+       
 
         for (int y=0;y<2*h;y++)
         {
             for (int x=0;x<2*w;x++){
-              out << array[y][x] << endl;
+             if(array[y][x] != "") {
+              out << array[y][x] <<  endl;
+            }
           }
         }
   
     return 0;
 }
 
-
-int main (){
-
-   doubleUp("logo.pgm");
-   return 0;
-
-}

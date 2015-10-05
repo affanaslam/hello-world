@@ -95,7 +95,7 @@ char encipher(char letter, int shift) {
   
 
  
- return (((letter-'a'+1)+shift)%26)+'a';
+ return (((letter-'a')+shift)%26)+'a';
 
 }
 
@@ -103,7 +103,7 @@ char decipher(char letter, int shift) {
   
 
  
- return (( (((letter-'a'-1)-shift)%26) + 26)%26 )+'a';
+ return (( (((letter-'a')-shift)%26) + 26)%26 )+'a';
 
 }
 
@@ -193,41 +193,6 @@ return 0;
 
 
 
- int main () {
-
-//countFrequency ("My#$name*%!is A1213ffan");
-
-//cout << decipher ('z',2);  
-
-
-//cout << int_to_str(3);
-
-//cout << intToStr(3);
-
- //cout << randomBits(4); 
-
- //cout << strToint("3");
-
-//cout << setfill('0') << setw(5) << 25;
- /* std::map<std::string,int> mymap;
-
- 
- for (int i=0; i < 10; i++){
-  mymap[DecToBin(i)] = i;
-
-}
-  // show content:
-  for (std::map<std::string,int>::iterator it=mymap.begin(); it!=mymap.end(); ++it)
-    
-    std::cout << it->first << " => " << it->second << '\n';
-
-  return 0;
-*/
- // cout << bin(4,4);
-
-cout << stability("00000000", 2);
-
-}
 
 
 
