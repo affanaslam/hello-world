@@ -150,13 +150,26 @@ u = unique(v); // vector of unique values
  return map;   
 }
 
+bool myfunction (int i,int j) { return (i<j); }
+
+std::vector<int> sorting (std::vector<int> v){
+
+	sort (v.begin(), v.end(), myfunction);
+
+	return v;
+
+}
 
 int main(){
 
 	
 static const int arr[] = {11,12,3,11};
 vector<int> v (arr, arr + sizeof(arr) / sizeof(arr[0]) );
-std::vector<int> u;
+
+
+
+for (int i =0 ; i < sorting(v).size() ; ++i)
+	cout << sorting(v)[i] << endl;
    //cout << "the max number is: " << max(v);
 //swapVector(1,2,v);
 
@@ -172,11 +185,11 @@ for (int i = 0; i < u.size(); i++){
 	cout << u[i] << ",";
 } */
 
- std::map<int,vector<int>  >::iterator it = locate(v).begin();
+/* std::map<int,vector<int>  >::iterator it = locate(v).begin();
 
 for (it=locate(v).begin(); it!=locate(v).end(); ++it)
     std::cout << it->first << '\n';
-
+*/
 
 
 
