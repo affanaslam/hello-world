@@ -8,7 +8,7 @@ class Stack
 
 private:
  int top,length;
- int* data; 
+ int* data;
 
 public:
 	Stack(int = 0);
@@ -25,7 +25,7 @@ Stack::Stack(int size){
    length = size;
    if (size == 0)
    	data = 0;
-   else 
+   else
    	data = new int[length];
 }
 
@@ -41,14 +41,13 @@ void Stack::push(int value){
 		cin >> length;
 		data = new int [length];
 	}
-	if (top == length-1)
+	/*if (top == length-1)
 	{
-		cout << "can't push further";
-		return;
-	}
+		top = -1;
+	}*/
     else {
     	top++;
-    	data[top] = value;
+    	data[top%length] = value;
     }
 }
 
@@ -62,7 +61,7 @@ int Stack::pop (){
 	int val = data[top];
 	top --;
 	return val;
-	
+
 }
 
 string Stack::isEmpty(){
@@ -82,14 +81,17 @@ void Stack::display()
 
 int main()
 {
-    Stack s1;             //We are creating a stack of size 'zero'
+    Stack s1(3);             //We are creating a stack of size 'zero'
     s1.push(1);
-    s1.display();
+
     s1.push(2);
     s1.push(3);
     s1.push(4);
+   //s1.~Stack();
     s1.push(5);
-    cout << s1.isEmpty();
+   // s1.push(6);
+    s1.display();
+    //cout << s1.isEmpty();
     /*s1.display();
     s1.pop();
     s1.display();
